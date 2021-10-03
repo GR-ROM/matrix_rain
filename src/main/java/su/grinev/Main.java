@@ -4,45 +4,67 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+
+import static su.grinev.MultiMonitorJFrame.showFrameOnScreen;
 
 public class Main {
 
-    public static void main(String[] args) {
-        int width = 0;
-        int height = 0;
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice[] gs = ge.getScreenDevices();
-        for (GraphicsDevice curGs : gs) {
-            DisplayMode mode = curGs.getDisplayMode();
-            width += mode.getWidth();
-            if (mode.getHeight() > height) {
-                height = mode.getHeight();
-            }
+    public static class ScreenContext {
+        public int logicNumber;
+        public int width;
+        public int height;
+        public JFrame frame;
+        public Matrix matrix;
+
+        public ScreenContext(int logicNumber) {
+            this.logicNumber = logicNumber;
+            this.frame = new JFrame("First frame"+logicNumber);
+            this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            this.frame.setUndecorated(true);
+            this.frame.setVisible(true);
+            this.frame.setAlwaysOnTop(true);
+            showFrameOnScreen(frame, logicNumber);
+            this.width = frame.getWidth();
+            this.height = frame.getHeight();
+            matrix = new Matrix(this.width, this.height);
+            this.frame.add(matrix);
+
+            // Transparent 16 x 16 pixel cursor image.
+            BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+            // Create a new blank cursor.
+            Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+                    cursorImg, new Point(0, 0), "blank cursor");
+            // Set the blank cursor to the JFrame.
+            this.frame.getContentPane().setCursor(blankCursor);
+
+            frame.addKeyListener(new KeyListener() {
+                @Override
+                public void keyTyped(KeyEvent e) {
+                    System.exit(0);
+                }
+
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    System.exit(0);
+                }
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+
+                }
+            });
         }
-        Matrix matrix = new Matrix(width, height);
-        JFrame frame = new JFrame();
-        frame.setSize(width, height);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
-        frame.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                System.exit(0);
-            }
+    }
 
-            @Override
-            public void keyPressed(KeyEvent e) {
-                System.exit(0);
+    public static void main(String[] args) {
+        int screenNumber = MultiMonitorJFrame.getScreenNumber();
+        List<ScreenContext> screenContextList = new ArrayList<>();
 
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-            }
-        });
-        frame.setUndecorated(true);
-        frame.getContentPane().add(matrix);
-        frame.setVisible(true);
+        for (int i = 0; i != screenNumber; i++) {
+            screenContextList.add(new ScreenContext(i));
+        }
     }
 }
