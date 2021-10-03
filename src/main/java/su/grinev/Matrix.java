@@ -39,8 +39,7 @@ public class Matrix extends JPanel {
         public void run() {
             counter++;
             int speed = Stripe.Speed.FAST;
-            container.validate();
-            container.repaint();
+            repaint();
             if (counter % 2 == 0) {
                 speed = Stripe.Speed.NORMAL;
             }
