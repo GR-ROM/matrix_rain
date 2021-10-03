@@ -75,14 +75,9 @@ public class Matrix extends JPanel {
             });
 
             if (speed == Stripe.Speed.SLOW) {
-                List<Stripe> stripeOutList = stripeList.stream()
-                        .filter(s -> !s.isVisible())
-                        .collect(Collectors.toList());
                 lock.lock();
                 try {
-                    busyColumns.removeAll(stripeOutList.stream().map(s -> s.getX() / 18).collect(Collectors.toSet()));
-                    stripeList.removeAll(stripeOutList);
-                    stripeList.addAll(generateStripes(stripeOutList.size()));
+                    stripeList.addAll(generateStripes(releaseStripes()));
                 } finally {
                     lock.unlock();
                 }
@@ -103,7 +98,16 @@ public class Matrix extends JPanel {
         return stripeList;
     }
 
-    public Matrix(int width, int height) {
+    private int releaseStripes() {
+        List<Stripe> stripeOutList = stripeList.stream()
+                .filter(s -> !s.isVisible())
+                .collect(Collectors.toList());
+        busyColumns.removeAll(stripeOutList.stream().map(s -> s.getX() / 18).collect(Collectors.toSet()));
+        stripeList.removeAll(stripeOutList);
+        return stripeOutList.size();
+    }
+
+    public Matrix(int width, int height, int num) {
         this.lock = new ReentrantLock();
         this.width = width;
         this.height = height;
@@ -113,7 +117,7 @@ public class Matrix extends JPanel {
         this.lastMousePosition = MouseInfo.getPointerInfo().getLocation();
         maxColumns = width / 18;
         stripeList.addAll(generateStripes(1));
-        Timer timer1 = new Timer("Timer1");
+        Timer timer1 = new Timer("Timer" + num);
         timer1.scheduleAtFixedRate(new Task(this), 0, 40);
     }
 

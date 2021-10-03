@@ -57,18 +57,18 @@ public class Stripe {
     }
 
     public void pushElement(MatrixElement element) {
-        lock.lock();
-        try {
-            matrixElements.add(0, element);
-            if (matrixElements.size() >= this.len) {
-                matrixElements.remove(matrixElements.size() - 1);
+        if (lock.tryLock()) {
+            try {
+                matrixElements.add(0, element);
+                if (matrixElements.size() >= this.len) {
+                    matrixElements.remove(matrixElements.size() - 1);
+                }
+                AtomicInteger colorIndex = new AtomicInteger();
+                matrixElements.forEach(i -> i.setColorIndex(colorIndex.getAndIncrement()));
+                this.yPos += this.step;
+            } finally {
+                lock.unlock();
             }
-            AtomicInteger colorIndex = new AtomicInteger();
-            matrixElements.forEach(i -> i.setColorIndex(colorIndex.getAndIncrement()));
-            this.yPos += this.step;
-        }
-        finally {
-            lock.unlock();
         }
     }
 
@@ -89,28 +89,26 @@ public class Stripe {
             return;
         }
 
-        if (lock.tryLock()) {
-            try {
-                final int[] y = {yPos};
-                g.setFont(new Font("Console", Font.BOLD, this.size));
-                matrixElements.forEach(matrixElement -> {
-                    if (matrixElement.getColorIndex() == 0) g.setColor(new Color(0xFFFFFF));
-                    else if (matrixElement.getColorIndex() >= 1 && matrixElement.getColorIndex() <= 3) g.setColor(new Color(0x00FFFF));
-                    else if (matrixElement.getColorIndex() >= 4 && matrixElement.getColorIndex() <= 8) g.setColor(new Color(0x00FF70));
-                    else if (matrixElement.getColorIndex() >= 9 && matrixElement.getColorIndex() <= 20)
-                        g.setColor(new Color(0x00FF00));
-                    else if (matrixElement.getColorIndex() >= 21 && matrixElement.getColorIndex() <= 30)
-                        g.setColor(new Color(0x00AF00));
-                    else if (matrixElement.getColorIndex() >= 31 && matrixElement.getColorIndex() <= 40)
-                        g.setColor(new Color(0x007F00));
-                    else if (matrixElement.getColorIndex() >= 40) g.setColor(new Color(0xFF003700, true));
-                    g.drawString(matrixElement.getCharacter().toString(), xPos, y[0]);
-                    y[0] -= this.step;
-                });
-            }
-            finally {
-                lock.unlock();
-            }
+        lock.lock();
+        try {
+            final int[] y = {yPos};
+            g.setFont(new Font("Console", Font.BOLD, this.size));
+            matrixElements.forEach(matrixElement -> {
+                if (matrixElement.getColorIndex() == 0) g.setColor(new Color(0xFFFFFF));
+                else if (matrixElement.getColorIndex() >= 1 && matrixElement.getColorIndex() <= 3) g.setColor(new Color(0x00FFFF));
+                else if (matrixElement.getColorIndex() >= 4 && matrixElement.getColorIndex() <= 8) g.setColor(new Color(0x00FF70));
+                else if (matrixElement.getColorIndex() >= 9 && matrixElement.getColorIndex() <= 20)
+                    g.setColor(new Color(0x00FF00));
+                else if (matrixElement.getColorIndex() >= 21 && matrixElement.getColorIndex() <= 30)
+                    g.setColor(new Color(0x00AF00));
+                else if (matrixElement.getColorIndex() >= 31 && matrixElement.getColorIndex() <= 40)
+                    g.setColor(new Color(0x007F00));
+                else if (matrixElement.getColorIndex() >= 40) g.setColor(new Color(0xFF003700, true));
+                g.drawString(matrixElement.getCharacter().toString(), xPos, y[0]);
+                y[0] -= this.step;
+            });
+        } finally {
+            lock.unlock();
         }
     }
 }

@@ -21,7 +21,7 @@ public class Main {
 
         public ScreenContext(int logicNumber) {
             this.logicNumber = logicNumber;
-            this.frame = new JFrame("First frame"+logicNumber);
+            this.frame = new JFrame("First frame" + logicNumber);
             this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             this.frame.setUndecorated(true);
             this.frame.setVisible(true);
@@ -29,33 +29,33 @@ public class Main {
             showFrameOnScreen(frame, logicNumber);
             this.width = frame.getWidth();
             this.height = frame.getHeight();
-            matrix = new Matrix(this.width, this.height);
+            matrix = new Matrix(this.width, this.height, logicNumber);
             this.frame.add(matrix);
 
-            // Transparent 16 x 16 pixel cursor image.
-            BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-            // Create a new blank cursor.
-            Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-                    cursorImg, new Point(0, 0), "blank cursor");
-            // Set the blank cursor to the JFrame.
-            this.frame.getContentPane().setCursor(blankCursor);
+//            // Transparent 16 x 16 pixel cursor image.
+//            BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+//            // Create a new blank cursor.
+//            Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+//                    cursorImg, new Point(0, 0), "blank cursor");
+//            // Set the blank cursor to the JFrame.
+//            this.frame.getContentPane().setCursor(blankCursor);
 
-            frame.addKeyListener(new KeyListener() {
-                @Override
-                public void keyTyped(KeyEvent e) {
-                    System.exit(0);
-                }
-
-                @Override
-                public void keyPressed(KeyEvent e) {
-                    System.exit(0);
-                }
-
-                @Override
-                public void keyReleased(KeyEvent e) {
-
-                }
-            });
+//            frame.addKeyListener(new KeyListener() {
+//                @Override
+//                public void keyTyped(KeyEvent e) {
+//                    System.exit(0);
+//                }
+//
+//                @Override
+//                public void keyPressed(KeyEvent e) {
+//                    System.exit(0);
+//                }
+//
+//                @Override
+//                public void keyReleased(KeyEvent e) {
+//
+//                }
+//            });
         }
     }
 
