@@ -84,7 +84,7 @@ public class Stripe {
         return (yPos >= 0 && yPos <= screenHeight + matrixElements.size() * this.step);
     }
 
-    public void draw(Graphics g) {
+    public void draw(Graphics2D g) {
         if (!isVisible()) {
             return;
         }

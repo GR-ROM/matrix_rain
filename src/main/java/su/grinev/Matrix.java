@@ -19,6 +19,7 @@ public class Matrix extends JPanel {
     private final int height;
     private Point lastMousePosition;
     private final Lock lock;
+    private JFrame container;
 
     public class Task extends TimerTask {
 
@@ -38,8 +39,8 @@ public class Matrix extends JPanel {
         public void run() {
             counter++;
             int speed = Stripe.Speed.FAST;
-            jPanel.repaint();
-            jPanel.invalidate();
+            container.validate();
+            container.repaint();
             if (counter % 2 == 0) {
                 speed = Stripe.Speed.NORMAL;
             }
@@ -107,8 +108,9 @@ public class Matrix extends JPanel {
         return stripeOutList.size();
     }
 
-    public Matrix(int width, int height, int num) {
+    public Matrix(int width, int height, int num, JFrame container) {
         this.lock = new ReentrantLock();
+        this.container = container;
         this.width = width;
         this.height = height;
         this.stripeList = new ArrayList<>();
@@ -121,12 +123,15 @@ public class Matrix extends JPanel {
         timer1.scheduleAtFixedRate(new Task(this), 0, 40);
     }
 
-    public void paint(Graphics g){
+    @Override
+    public void paintComponent(Graphics g){
         if (lock.tryLock()) {
             try {
-                g.setColor(new Color(0x000000));
-                g.fillRect(0, 0, this.width, this.height);
-                stripeList.forEach(stripe -> stripe.draw(g));
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setColor(new Color(0x000000));
+                g2.fillRect(0, 0, this.width, this.height);
+                stripeList.forEach(stripe -> stripe.draw(g2));
             }
             finally {
                 lock.unlock();
