@@ -16,13 +16,14 @@ public class Stripe {
 
     private final int xPos;
     private int yPos;
+    private final int screenHeight;
     private final int size;
     private final int len;
     private final int speed;
     private final int step;
     private final List<MatrixElement> matrixElements;
 
-    public Stripe(int len, int xPos) {
+    public Stripe(int len, int xPos, final int screenHeight) {
         Random random = new Random();
         this.speed = Math.abs(random.nextInt(3));
         this.matrixElements = new ArrayList<>();
@@ -31,6 +32,7 @@ public class Stripe {
         this.xPos = xPos;
         this.yPos = 0;
         this.step = 20;
+        this.screenHeight = screenHeight;
     }
 
     public void setRandomElement(Random random, Character character) {
@@ -62,7 +64,7 @@ public class Stripe {
     }
 
     public boolean isVisible() {
-        return (yPos >= 0 && yPos <= 1080 + matrixElements.size() * 20);
+        return (yPos >= 0 && yPos <= screenHeight + matrixElements.size() * this.step);
     }
 
     public void draw(Graphics g) {

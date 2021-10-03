@@ -85,7 +85,7 @@ public class Matrix extends JPanel {
                 column = Math.abs(random.nextInt(maxColumns));
             } while (this.busyColumns.contains(column));
             this.busyColumns.add(column);
-            stripeList.add(new Stripe(15 + random.nextInt(70), column * 18));
+            stripeList.add(new Stripe(15 + random.nextInt(70), column * 18, height));
         }
         return stripeList;
     }
