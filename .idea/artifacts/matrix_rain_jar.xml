@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="matrix_rain:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/matrix_rain_jar</output-path>
+    <root id="archive" name="matrix_rain.jar">
+      <element id="module-output" name="matrix_rain" />
+    </root>
+  </artifact>
+</component>
