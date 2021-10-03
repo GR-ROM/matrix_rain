@@ -5,6 +5,8 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 public class Matrix extends JPanel {
@@ -16,6 +18,7 @@ public class Matrix extends JPanel {
     private final int width;
     private final int height;
     private Point lastMousePosition;
+    private final Lock lock;
 
     public class Task extends TimerTask {
 
@@ -51,7 +54,13 @@ public class Matrix extends JPanel {
                 time++;
                 if (stripeList.size() < maxColumns) {
                     if (time % 10 == random.nextInt(10)) {
-                        stripeList.addAll(generateStripes(1));
+                        lock.lock();
+                        try {
+                            stripeList.addAll(generateStripes(1));
+                        }
+                        finally {
+                            lock.unlock();
+                        }
                     }
                 }
             }
@@ -69,10 +78,14 @@ public class Matrix extends JPanel {
                 List<Stripe> stripeOutList = stripeList.stream()
                         .filter(s -> !s.isVisible())
                         .collect(Collectors.toList());
-
-                busyColumns.removeAll(stripeOutList.stream().map(s -> s.getX() / 18).collect(Collectors.toSet()));
-                stripeList.removeAll(stripeOutList);
-                stripeList.addAll(generateStripes(stripeOutList.size()));
+                lock.lock();
+                try {
+                    busyColumns.removeAll(stripeOutList.stream().map(s -> s.getX() / 18).collect(Collectors.toSet()));
+                    stripeList.removeAll(stripeOutList);
+                    stripeList.addAll(generateStripes(stripeOutList.size()));
+                } finally {
+                    lock.unlock();
+                }
             }
         }
     }
@@ -91,6 +104,7 @@ public class Matrix extends JPanel {
     }
 
     public Matrix(int width, int height) {
+        this.lock = new ReentrantLock();
         this.width = width;
         this.height = height;
         this.stripeList = new ArrayList<>();
@@ -104,14 +118,20 @@ public class Matrix extends JPanel {
     }
 
     public void paint(Graphics g){
-        synchronized (this) {
-            g.setColor(new Color(0x000000));
-            g.fillRect(0, 0, this.width, this.height);
-            stripeList.forEach(stripe -> stripe.draw(g));
+        if (lock.tryLock()) {
+            try {
+                g.setColor(new Color(0x000000));
+                g.fillRect(0, 0, this.width, this.height);
+                stripeList.forEach(stripe -> stripe.draw(g));
+            }
+            finally {
+                lock.unlock();
+            }
         }
     }
 
     private boolean isMouseMoved() {
+        if (null == MouseInfo.getPointerInfo()) return false;
         if (MouseInfo.getPointerInfo().getLocation().x != lastMousePosition.x || MouseInfo.getPointerInfo().getLocation().y != lastMousePosition.y) {
             return true;
         } else {
