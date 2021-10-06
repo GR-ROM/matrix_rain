@@ -29,7 +29,7 @@ public class Main {
             this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             this.frame.setUndecorated(true);
             this.frame.setVisible(true);
-            this.frame.setAlwaysOnTop(true);
+            this.frame.setAlwaysOnTop(false);
             this.frame.add(matrix);
             this.frame.validate();
             this.frame.repaint();
@@ -42,22 +42,22 @@ public class Main {
             // Set the blank cursor to the JFrame.
             this.frame.getContentPane().setCursor(blankCursor);
 
-            frame.addKeyListener(new KeyListener() {
-                @Override
-                public void keyTyped(KeyEvent e) {
-                    System.exit(0);
-                }
-
-                @Override
-                public void keyPressed(KeyEvent e) {
-                    System.exit(0);
-                }
-
-                @Override
-                public void keyReleased(KeyEvent e) {
-
-                }
-            });
+//            frame.addKeyListener(new KeyListener() {
+//                @Override
+//                public void keyTyped(KeyEvent e) {
+//                    System.exit(0);
+//                }
+//
+//                @Override
+//                public void keyPressed(KeyEvent e) {
+//                    System.exit(0);
+//                }
+//
+//                @Override
+//                public void keyReleased(KeyEvent e) {
+//
+//                }
+//            });
         }
     }
 

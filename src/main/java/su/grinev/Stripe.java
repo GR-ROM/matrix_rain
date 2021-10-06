@@ -1,10 +1,8 @@
 package su.grinev;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -17,24 +15,23 @@ public class Stripe {
         public static final Integer FAST = 2;
     }
 
-    private final int xPos;
+    private int xPos;
     private int yPos;
     private final int screenHeight;
     private final int size;
     private final int len;
-    private final int speed;
+    private int speed;
     private final int step;
     private final Lock lock;
     private final List<MatrixElement> matrixElements;
 
-    public Stripe(int len, int xPos, final int screenHeight) {
+    public Stripe(int len, final int screenHeight) {
         Random random = new Random();
         this.lock = new ReentrantLock();
         this.speed = Math.abs(random.nextInt(3));
-        this.matrixElements = new ArrayList<>();
+        this.matrixElements = new LinkedList<>();
         this.size = 21;
         this.len = len;
-        this.xPos = xPos;
         this.yPos = 0;
         this.step = 20;
         this.screenHeight = screenHeight;
@@ -72,7 +69,7 @@ public class Stripe {
         }
     }
 
-    public int getX() {
+    public int getXPos() {
         return xPos;
     }
 
@@ -81,17 +78,32 @@ public class Stripe {
     }
 
     public boolean isVisible() {
-        return (yPos >= 0 && yPos <= screenHeight + matrixElements.size() * this.step);
+        return yPos <= screenHeight + matrixElements.size() * this.step;
+    }
+
+    public boolean isTailOut() {
+        return (yPos - ((matrixElements.size() * this.step) + (this.step * 5))) > 0;
+    }
+
+    public void setXPos(int xPos) {
+        this.xPos = xPos;
+    }
+
+    public void setYPos(int yPos) {
+        this.yPos = yPos;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
     }
 
     public void draw(Graphics2D g) {
-        if (!isVisible()) {
+        if (yPos < 0 && yPos > screenHeight ) {
             return;
         }
-
         lock.lock();
         try {
-            final int[] y = {yPos};
+            final int[] y = { yPos };
             g.setFont(new Font("Console", Font.BOLD, this.size));
             matrixElements.forEach(matrixElement -> {
                 if (matrixElement.getColorIndex() == 0) g.setColor(new Color(0xFFFFFF));
@@ -105,7 +117,8 @@ public class Stripe {
                     g.setColor(new Color(0x00AF00));
                 else if (matrixElement.getColorIndex() >= 31 && matrixElement.getColorIndex() <= 40)
                     g.setColor(new Color(0x007F00));
-                else if (matrixElement.getColorIndex() >= 40) g.setColor(new Color(0xFF003700, true));
+                else if (matrixElement.getColorIndex() >= 40)
+                    g.setColor(new Color(0xFF003700, true));
                 g.drawString(matrixElement.getCharacter().toString(), xPos, y[0]);
                 y[0] -= this.step;
             });
@@ -113,4 +126,5 @@ public class Stripe {
             lock.unlock();
         }
     }
+
 }
