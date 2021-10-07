@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="matrix_rain" target="8" />
+      <module name="matrix_rain" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>

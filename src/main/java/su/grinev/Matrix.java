@@ -15,6 +15,7 @@ public class Matrix extends JPanel {
     private final Random random;
     private final List<Stripe> stripeListPool;
     Map<Integer, List<Stripe>> busyColumns;
+    private final int maxStripes;
     private final int maxColumns;
     private final int width;
     private final int height;
@@ -46,12 +47,12 @@ public class Matrix extends JPanel {
             if (counter % 4 == 0) {
                 speed = Stripe.Speed.SLOW;
                 if (isMouseMoved()) {
-                    System.exit(0);
+                   // System.exit(0);
                 }
             }
             if (speed == Stripe.Speed.NORMAL) {
                 time++;
-                if (stripeList.size() < maxColumns + 50) {
+                if (stripeList.size() < maxStripes) {
                     if (time % 10 == random.nextInt(10))
                     {
                         generateStripes(1);
@@ -64,7 +65,7 @@ public class Matrix extends JPanel {
                     .filter(stripe -> stripe.getSpeed() == finalSpeed)
                     .collect(Collectors.toList());
             stripeListBySpeed.forEach(stripe -> {
-                stripe.pushElement(new MatrixElement(alphabet[random.nextInt(alphabet.length - 1)]));
+                stripe.pushElement(alphabet[random.nextInt(alphabet.length - 1)]);
                 stripe.setRandomElement(random, alphabet[random.nextInt(alphabet.length - 1)]);
             });
             repaint();
@@ -134,7 +135,7 @@ public class Matrix extends JPanel {
         }
     }
 
-    public Matrix(int width, int height, int num, JFrame container) {
+    public Matrix(int width, int height, int num, int maxStripes, JFrame container) {
         this.lock = new ReentrantLock();
         this.container = container;
         this.width = width;
@@ -143,19 +144,20 @@ public class Matrix extends JPanel {
         this.stripeListPool = new ArrayList<>();
         this.busyColumns = new HashMap<>();
         this.random = new Random();
+        this.maxStripes = maxStripes;
         this.lastMousePosition = MouseInfo.getPointerInfo().getLocation();
         maxColumns = width / 18;
         for (int i = 0; i != width / 18; i++) {
             busyColumns.put(i, new ArrayList<>());
         }
 
-        for (int i = 0; i != 200; i++) {
+        for (int i = 0; i != maxStripes; i++) {
             stripeListPool.add(new Stripe(20 + random.nextInt(20), height));
         }
 
         generateStripes(1);
         Timer timer = new Timer("Timer" + num);
-        timer.scheduleAtFixedRate(new Task(this), 0, 40);
+        timer.scheduleAtFixedRate(new Task(this), 0, 50);
     }
 
     @Override
