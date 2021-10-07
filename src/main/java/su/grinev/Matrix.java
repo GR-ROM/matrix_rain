@@ -55,13 +55,13 @@ public class Matrix extends JPanel {
                 }
             }
             int finalSpeed = speed;
-            List<Stripe> stripeListBySpeed = stripeList.stream()
+            stripeList.stream()
                     .filter(stripe -> stripe.getSpeed() == finalSpeed)
-                    .collect(Collectors.toList());
-            stripeListBySpeed.forEach(stripe -> {
-                stripe.pushElement(alphabet[random.nextInt(alphabet.length - 1)]);
-                stripe.setRandomElement(random, alphabet[random.nextInt(alphabet.length - 1)]);
-            });
+                    .collect(Collectors.toList())
+                    .forEach(stripe -> {
+                        stripe.pushElement(alphabet[random.nextInt(alphabet.length - 1)]);
+                        stripe.setRandomElement(random, alphabet[random.nextInt(alphabet.length - 1)]);
+                    });
             repaint();
             generateStripes(releaseStripes());
         }
