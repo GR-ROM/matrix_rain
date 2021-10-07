@@ -25,7 +25,7 @@ public class Main {
             showFrameOnScreen(frame, logicNumber);
             this.width = frame.getWidth();
             this.height = frame.getHeight();
-            this.matrix = new Matrix(this.width, this.height, logicNumber, 100, this.frame);
+            this.matrix = new Matrix(this.width, this.height, logicNumber, 100);
             this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             this.frame.setUndecorated(true);
             this.frame.setVisible(true);

@@ -5,6 +5,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -21,11 +22,9 @@ public class Matrix extends JPanel {
     private final int height;
     private Point lastMousePosition;
     private final Lock lock;
-    private JFrame container;
 
     public class Task extends TimerTask {
 
-        private final JPanel jPanel;
         private int counter;
         private int time = 0;
         private final char[] alphabet = {'あ', 'た', 'ア',
@@ -33,8 +32,7 @@ public class Matrix extends JPanel {
                 'シ', 'ス', 'セ', 'ソ', 'キ', 'ク', 'ケ',
                 'コ', 'イ', 'ウ', 'エ', 'オ', 'ジ', 'ャ', 'な'};
 
-        public Task(JPanel jPanel) {
-            this.jPanel = jPanel;
+        public Task() {
             this.counter = 0;
         }
 
@@ -52,14 +50,10 @@ public class Matrix extends JPanel {
             }
             if (speed == Stripe.Speed.NORMAL) {
                 time++;
-                if (stripeList.size() < maxStripes) {
-                    if (time % 10 == random.nextInt(10))
-                    {
+                if (stripeList.size() < maxStripes && time % 10 == random.nextInt(10)) {
                         generateStripes(1);
-                    }
                 }
             }
-
             int finalSpeed = speed;
             List<Stripe> stripeListBySpeed = stripeList.stream()
                     .filter(stripe -> stripe.getSpeed() == finalSpeed)
@@ -73,33 +67,27 @@ public class Matrix extends JPanel {
         }
     }
 
-
     private void generateStripes(int len) {
-        int column;
-        int speed = Math.abs(random.nextInt(3));
-
+        AtomicInteger column = new AtomicInteger();
+        AtomicInteger speed = new AtomicInteger(Math.abs(random.nextInt(3)));
         lock.lock();
         try {
             for (int i = 0; i != len; i++) {
                 if (stripeList.size() < maxColumns) {
                     do {
-                        column = Math.abs(random.nextInt(maxColumns));
-                    } while (this.busyColumns.get(column).size() != 0);
+                        column.set(Math.abs(random.nextInt(maxColumns)));
+                    } while (this.busyColumns.get(column.get()).size() != 0);
                 } else {
-                    Optional<Stripe> stripeOptional = stripeList.stream()
+                    stripeList.stream()
                             .filter(Stripe::isTailOut)
-                            .findFirst();
-                    if (stripeOptional.isPresent()) {
-                        if (busyColumns.get(stripeOptional.get().getXPos() / 18).size() == 0
-                                || busyColumns.get(stripeOptional.get().getXPos() / 18).stream().allMatch(Stripe::isTailOut)) {
-                            column = stripeOptional.get().getXPos() / 18;
-                            speed = stripeOptional.get().getSpeed();
-                        } else {
-                            return;
-                        }
-                    } else {
-                        return;
-                    }
+                            .findFirst()
+                            .ifPresent(stripe -> {
+                                if (busyColumns.get(stripe.getXPos() / 18).size() == 0
+                                        || busyColumns.get(stripe.getXPos() / 18).stream().allMatch(Stripe::isTailOut)) {
+                                    column.set(stripe.getXPos() / 18);
+                                    speed.set(stripe.getSpeed());
+                                }
+                            });
                 }
                 Stripe stripe;
                 if (!stripeListPool.isEmpty()) {
@@ -107,10 +95,10 @@ public class Matrix extends JPanel {
                 } else {
                     return;
                 }
-                stripe.setSpeed(speed);
+                stripe.setSpeed(speed.get());
                 stripe.setYPos(-20);
-                stripe.setXPos(column * 18);
-                this.busyColumns.get(column).add(stripe);
+                stripe.setXPos(column.get() * 18);
+                this.busyColumns.get(column.get()).add(stripe);
                 stripeList.add(stripe);
             }
         }
@@ -135,9 +123,8 @@ public class Matrix extends JPanel {
         }
     }
 
-    public Matrix(int width, int height, int num, int maxStripes, JFrame container) {
+    public Matrix(int width, int height, int num, int maxStripes) {
         this.lock = new ReentrantLock();
-        this.container = container;
         this.width = width;
         this.height = height;
         this.stripeList = new ArrayList<>();
@@ -150,14 +137,12 @@ public class Matrix extends JPanel {
         for (int i = 0; i != width / 18; i++) {
             busyColumns.put(i, new ArrayList<>());
         }
-
         for (int i = 0; i != maxStripes; i++) {
             stripeListPool.add(new Stripe(20 + random.nextInt(20), height));
         }
-
         generateStripes(1);
         Timer timer = new Timer("Timer" + num);
-        timer.scheduleAtFixedRate(new Task(this), 0, 50);
+        timer.scheduleAtFixedRate(new Task(), 0, 50);
     }
 
     @Override
