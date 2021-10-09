@@ -1,5 +1,7 @@
 package su.grinev;
 
+import org.w3c.dom.ranges.Range;
+
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -14,6 +16,20 @@ public class Stripe {
         public static final Integer FAST = 2;
     }
 
+    private class Range {
+        public int low;
+        public int high;
+        public int color;
+
+        public Range(int low, int high, int color) {
+            this.low = low;
+            this.high = high;
+            this.color = color;
+        }
+    }
+
+    private final Range[] ranges;
+    private final Color[] colors;
     private int xPos;
     private int yPos;
     private final int screenHeight;
@@ -21,19 +37,33 @@ public class Stripe {
     private final int len;
     private int speed;
     private final int step;
+    private final char[] chars;
     private final Lock lock;
+    private final Font font;
     private final List<Character> matrixElements;
 
-    public Stripe(int len, final int screenHeight) {
+    public Stripe(int len, final int screenHeight, final Color[] colors) {
         Random random = new Random();
         this.lock = new ReentrantLock();
         this.speed = Math.abs(random.nextInt(3));
         this.matrixElements = new LinkedList<>();
-        this.size = 21;
+        this.size = 24;
+        this.colors = colors;
+        this.chars = new char[1];
+        this.font = new Font("Console", Font.BOLD, this.size);
         this.len = len;
         this.yPos = 0;
         this.step = 20;
         this.screenHeight = screenHeight;
+        this.ranges = new Range[10];
+        this.ranges[0] = new Range(0, 1, 0);
+        this.ranges[1] = new Range(2, 5, 1);
+        this.ranges[2] = new Range(6, 10, 2);
+        this.ranges[3] = new Range(10, 40, 3);
+        this.ranges[4] = new Range(41, 60, 4);
+        this.ranges[5] = new Range(61, 80, 5);
+        this.ranges[6] = new Range(81, 100, 6);
+        this.ranges[7] = new Range(101, 2000, 7);
     }
 
     public void setRandomElement(Random random, Character character) {
@@ -68,6 +98,8 @@ public class Stripe {
         return xPos;
     }
 
+    public int getColumn() { return xPos / 18; }
+
     public int getSpeed() {
         return speed;
     }
@@ -83,6 +115,8 @@ public class Stripe {
     public void setXPos(int xPos) {
         this.xPos = xPos;
     }
+
+    public void setColumn(int column) { this.xPos = column * 18; }
 
     public void setYPos(int yPos) {
         this.yPos = yPos;
@@ -100,22 +134,14 @@ public class Stripe {
         try {
             final int[] y = { yPos };
             final int[] i = {0};
-            g.setFont(new Font("Console", Font.BOLD, this.size));
+            g.setFont(font);
             matrixElements.forEach(matrixElement -> {
-                if (i[0] == 0) g.setColor(new Color(0xFFFFFF));
-                else if (i[0] >= 1 && i[0] <= 3)
-                    g.setColor(new Color(0x00FFFF));
-                else if (i[0] >= 4 && i[0] <= 8)
-                    g.setColor(new Color(0x00FF70));
-                else if (i[0] >= 9 && i[0] <= 20)
-                    g.setColor(new Color(0x00FF00));
-                else if (i[0] >= 21 && i[0] <= 30)
-                    g.setColor(new Color(0x00AF00));
-                else if (i[0] >= 31 && i[0] <= 40)
-                    g.setColor(new Color(0x007F00));
-                else if (i[0] >= 40)
-                    g.setColor(new Color(0xFF003700, true));
-                g.drawString(matrixElement.toString(), xPos, y[0]);
+                Arrays.stream(ranges)
+                        .filter(range -> i[0] >= range.low && i[0] <= range.high)
+                        .findAny()
+                        .ifPresent(range -> g.setColor(colors[range.color]));
+                this.chars[0] = matrixElement;
+                g.drawChars(this.chars, 0, 1, xPos, y[0]);
                 y[0] -= this.step;
                 i[0]++;
             });
