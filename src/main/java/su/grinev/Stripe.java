@@ -35,7 +35,7 @@ public class Stripe {
         this.matrixElements = new LinkedList<>();
         this.size = 24;
         this.chars = new char[1];
-        this.font = new Font("Console", Font.BOLD, this.size);
+        this.font = new Font("Courier", Font.BOLD, this.size);
         this.len = len;
         this.yPos = 0;
         this.step = 20;

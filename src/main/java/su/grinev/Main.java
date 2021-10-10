@@ -42,30 +42,31 @@ public class Main {
             // Set the blank cursor to the JFrame.
             this.frame.getContentPane().setCursor(blankCursor);
 
-//            frame.addKeyListener(new KeyListener() {
-//                @Override
-//                public void keyTyped(KeyEvent e) {
-//                    System.exit(0);
-//                }
-//
-//                @Override
-//                public void keyPressed(KeyEvent e) {
-//                    System.exit(0);
-//                }
-//
-//                @Override
-//                public void keyReleased(KeyEvent e) {
-//
-//                }
-//            });
+            frame.addKeyListener(new KeyListener() {
+                @Override
+                public void keyTyped(KeyEvent e) {
+                    System.exit(0);
+                }
+
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    System.exit(0);
+                }
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+
+                }
+            });
         }
     }
 
     public static void main(String[] args) {
+        System.setProperty("awt.useSystemAAFontSettings", "on");
         int screenNumber = MultiMonitorJFrame.getScreenNumber();
         List<ScreenContext> screenContextList = new ArrayList<>();
 
-        for (int i = 0; i != screenNumber-1; i++) {
+        for (int i = 0; i != screenNumber; i++) {
             screenContextList.add(new ScreenContext(i));
         }
     }
