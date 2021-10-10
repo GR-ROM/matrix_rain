@@ -44,7 +44,7 @@ public class Matrix extends JPanel {
             if (counter % 4 == 0) {
                 speed = Stripe.Speed.SLOW;
                 if (isMouseMoved()) {
-                    System.exit(0);
+                  //  System.exit(0);
                 }
             }
             if (speed == Stripe.Speed.FAST) {
@@ -128,15 +128,28 @@ public class Matrix extends JPanel {
     }
 
     public Matrix(int width, int height, int instanceNum, int maxStripes) {
-        Color[] colors = new Color[8];
-        colors[0] = new Color(0xFFFFFF);
-        colors[1] = new Color(0x00FFFF);
-        colors[2] = new Color(0x00FF70);
-        colors[3] = new Color(0x00FF00);
-        colors[4] = new Color(0x00AF00);
-        colors[5] = new Color(0x007F00);
-        colors[6] = new Color(0x005700);
-        colors[7] = new Color(0x003700);
+        Range[] ranges = new Range[20];
+        ranges[0] = new Range(0, 0, new Color(0xFFFFFF));
+        ranges[1] = new Range(1, 2, new Color(0x00FFFF));
+        ranges[2] = new Range(3, 8, new Color(0x00FF70));
+        ranges[3] = new Range(9, 15, new Color(0x00FF00));
+        ranges[4] = new Range(16, 18, new Color(0x00EF00));
+        ranges[5] = new Range(19, 24, new Color(0x00DF00));
+        ranges[6] = new Range(25, 30, new Color(0x00CF00));
+        ranges[7] = new Range(31, 35, new Color(0x00BF00));
+        ranges[8] = new Range(36, 40, new Color(0x00AF00));
+        ranges[9] = new Range(41, 55, new Color(0x009F00));
+        ranges[10] = new Range(56, 60, new Color(0x008F00));
+        ranges[11] = new Range(61, 65, new Color(0x007F00));
+        ranges[12] = new Range(66, 70, new Color(0x006F00));
+        ranges[13] = new Range(71, 75, new Color(0x005F00));
+        ranges[14] = new Range(76, 80, new Color(0x004F00));
+        ranges[15] = new Range(81, 100, new Color(0x003F00));
+        ranges[16] = new Range(101, 110, new Color(0x002F00));
+        ranges[17] = new Range(111, 120, new Color(0x002700));
+        ranges[18] = new Range(121, 130, new Color(0x001F00));
+        ranges[19] = new Range(131, 2000, new Color(0x001700));
+
         this.lock = new ReentrantLock();
         this.width = width;
         this.height = height;
@@ -154,11 +167,11 @@ public class Matrix extends JPanel {
             busyColumns[i] = new ArrayList<>();
         }
         for (int i = 0; i != maxStripes; i++) {
-            stripePool.push(new Stripe(20 + random.nextInt(100), height, colors));
+            stripePool.push(new Stripe(50 + random.nextInt(100), height, ranges));
         }
         generateStripes(1);
         Timer timer = new Timer("Timer" + instanceNum);
-        timer.scheduleAtFixedRate(new Task(), 0, 50);
+        timer.scheduleAtFixedRate(new Task(), 0, 25);
     }
 
     @Override

@@ -65,7 +65,7 @@ public class Main {
         int screenNumber = MultiMonitorJFrame.getScreenNumber();
         List<ScreenContext> screenContextList = new ArrayList<>();
 
-        for (int i = 0; i != screenNumber; i++) {
+        for (int i = 0; i != screenNumber-1; i++) {
             screenContextList.add(new ScreenContext(i));
         }
     }
